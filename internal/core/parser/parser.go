@@ -12,7 +12,7 @@ const json = `{"name":{"first":"Janet","last":"Prichard"},"age":47}`
 
 // Parser contract, Generates [WorkflowGraph] from workflow definition
 type Parser interface {
-	CreateWorkflowGraph(file *os.File) *WorkflowGraph
+	CreateWorkflowGraph(file *os.File) (*WorkflowGraph, error)
 }
 
 type jsonParser struct {
@@ -22,7 +22,7 @@ func NewJsonParser() Parser {
 	return &jsonParser{}
 }
 
-func (jp *jsonParser) CreateWorkflowGraph(file *os.File) *WorkflowGraph {
+func (jp *jsonParser) CreateWorkflowGraph(file *os.File) (*WorkflowGraph, error) {
 	log.Info().Msg("in jsonParser: CreateWorkflowGraph")
 
 	workflowDefinition, err := ioutil.ReadAll(file)
@@ -31,8 +31,15 @@ func (jp *jsonParser) CreateWorkflowGraph(file *os.File) *WorkflowGraph {
 	}
 
 	jsonContent := string(workflowDefinition)
+	jsonNode := gjson.Parse(jsonContent)
+
+	validateFields(jsonNode)
 
 	value := gjson.Get(json, "name.last")
 	println(value.String())
-	return nil
+	return nil, nil
+}
+
+func validateFields(jsonNode gjson.Result) {
+	log.Info().Msg("")
 }
